@@ -11,6 +11,7 @@ Run deterministic, offline regression checks on **recorded** AI-agent responses 
 ## Try it
 
     agent-audit examples/cases.json --json
+    agent-audit examples/cases.json --format junit > results.xml
 
 Fixture format:
 
