@@ -27,3 +27,31 @@ jobs:
         uses: ./
         with:
           fixture: examples/cases.json
+      - name: Verify failed assertions keep a usable JUnit report
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          fixture = json.loads(Path("examples/cases.json").read_text())
+          fixture["cases"][0]["expected_contains"] = ["intentionally missing text"]
+          Path("regression.json").write_text(json.dumps(fixture))
+          PY
+          status=0
+          agent-audit regression.json --format junit > pilot-junit.xml || status=$?
+          test "$status" -eq 1
+          python - <<'PY'
+          from xml.etree import ElementTree
+
+          report = ElementTree.parse("pilot-junit.xml")
+          assert report.find(".//testcase/failure") is not None
+          PY
+      - name: Upload the pilot JUnit report
+        if: ${{ !cancelled() && hashFiles('pilot-junit.xml') != '' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: pilot-junit-${{ matrix.python-version }}
+          path: pilot-junit.xml
+          retention-days: 7
+          if-no-files-found: error
