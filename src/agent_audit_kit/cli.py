@@ -3,12 +3,15 @@ import argparse
 import json
 from pathlib import Path
 from .evaluate import MAX_SUITE_BYTES, evaluate_suite
+from .junit import render_junit
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(prog="agent-audit", description="Offline agent contract checks")
     parser.add_argument("fixture", type=Path)
     parser.add_argument("--json", action="store_true", help="Machine-readable report")
+    parser.add_argument("--format", choices=("text", "json", "junit"), default="text",
+                        help="Console, JSON, or JUnit XML report")
     args = parser.parse_args(argv)
     try:
         if args.fixture.is_symlink():
@@ -24,8 +27,11 @@ def main(argv=None):
         report = evaluate_suite(payload)
     except (OSError, ValueError) as exc:
         parser.exit(2, f"invalid fixture: {exc}\n")
-    if args.json:
+    output_format = "json" if args.json else args.format
+    if output_format == "json":
         print(json.dumps(report, indent=2))
+    elif output_format == "junit":
+        print(render_junit(report), end="")
     else:
         print(f"{report['passed_count']}/{report['total']} checks passed")
         for case in report["cases"]:
