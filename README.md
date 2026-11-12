@@ -79,6 +79,8 @@ jobs:
 
 The job exits unsuccessfully when fixture assertions fail. For production usage, pin the Action to a reviewed commit SHA or versioned release rather than the moving `main` branch. It operates on fixture files in the calling repository and requires no model API key.
 
+For a downstream workflow that preserves JUnit reports when assertions fail, see the [CI pilot](docs/JUNIT_CI_PILOT.md).
+
 ## Test
 
     python -m unittest discover -s tests -v
