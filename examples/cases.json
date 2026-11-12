@@ -12,6 +12,10 @@
       "allowed_tools": [
         "search"
       ],
+      "expected_tool_sequence": [
+        "search"
+      ],
+      "max_tool_calls": 1,
       "tool_calls": [
         {
           "name": "search"
@@ -24,7 +28,11 @@
       "forbidden_contains": [
         "secret"
       ],
+      "forbidden_tools": [
+        "delete_repo"
+      ],
       "allowed_tools": [],
+      "expected_tool_sequence": [],
       "tool_calls": []
     }
   ]
