@@ -54,6 +54,30 @@ Example:
 
 The toolkit does not call model providers or run agent tools. Its secret patterns and content checks are only development heuristics, not a safety guarantee.
 
+## Use as a GitHub Action
+
+This repository now provides a reusable composite GitHub Action. In a downstream repository with a JSON fixture, add:
+
+```yaml
+name: Agent regression
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: MadhavSekhri/Agent-Audit-Kit@main
+        with:
+          fixture: examples/cases.json
+```
+
+The job exits unsuccessfully when fixture assertions fail. For production usage, pin the Action to a reviewed commit SHA or versioned release rather than the moving `main` branch. It operates on fixture files in the calling repository and requires no model API key.
+
 ## Test
 
     python -m unittest discover -s tests -v

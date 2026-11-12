@@ -1,0 +1,17 @@
+name: "Agent Audit Kit"
+description: "Run offline, deterministic AI-agent regression fixtures"
+inputs:
+  fixture:
+    description: "Path to JSON test fixture in the checked-out repository"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Install Agent Audit Kit
+      shell: bash
+      run: python -m pip install "$GITHUB_ACTION_PATH"
+    - name: Run deterministic fixture checks
+      shell: bash
+      env:
+        AGENT_AUDIT_FIXTURE: ${{ inputs.fixture }}
+      run: python -m agent_audit_kit.cli "$AGENT_AUDIT_FIXTURE" --json
