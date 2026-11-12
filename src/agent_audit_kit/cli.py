@@ -1,20 +1,29 @@
-"""Offline agent-audit CLI."""
+"""Offline CLI for agent contract fixtures; never executes tools or models."""
 import argparse
 import json
 from pathlib import Path
-from .evaluate import evaluate_suite
+from .evaluate import MAX_SUITE_BYTES, evaluate_suite
 
 
 def main(argv=None):
-    parser = argparse.ArgumentParser(prog="agent-audit", description="Offline agent-output regression checks")
+    parser = argparse.ArgumentParser(prog="agent-audit", description="Offline agent contract checks")
     parser.add_argument("fixture", type=Path)
     parser.add_argument("--json", action="store_true", help="Machine-readable report")
     args = parser.parse_args(argv)
     try:
-        payload = json.loads(args.fixture.read_text(encoding="utf-8"))
+        if args.fixture.is_symlink():
+            raise ValueError("fixture must not be a symbolic link")
+        with args.fixture.open("rb") as stream:
+            raw = stream.read(MAX_SUITE_BYTES + 1)
+        if len(raw) > MAX_SUITE_BYTES:
+            raise ValueError("fixture exceeds 1 MiB limit")
+        try:
+            payload = json.loads(raw.decode("utf-8"))
+        except (UnicodeError, json.JSONDecodeError, RecursionError) as exc:
+            raise ValueError("fixture must be valid UTF-8 JSON within parser nesting limits") from exc
         report = evaluate_suite(payload)
-    except (ValueError, OSError) as exc:
-        parser.exit(2, f"error: {exc}\n")
+    except (OSError, ValueError) as exc:
+        parser.exit(2, f"invalid fixture: {exc}\n")
     if args.json:
         print(json.dumps(report, indent=2))
     else:
