@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agent-audit-kit"
+version = "0.1.0"
+description = "Offline deterministic regression tests for recorded AI-agent responses and tool calls"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "Open-source contributors"}]
+dependencies = []
+
+[project.scripts]
+agent-audit = "agent_audit_kit.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
