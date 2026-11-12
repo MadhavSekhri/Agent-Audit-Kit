@@ -36,7 +36,7 @@ class EvaluatorTests(unittest.TestCase):
         })
         self.assertFalse(result.passed)
         self.assertEqual(
-            result.findings, ["tool_sequence_mismatch", "too_many_tool_calls"]
+            result.findings, ["too_many_tool_calls", "tool_sequence_mismatch"]
         )
 
     def test_forbidden_tools_even_without_allowed_tools(self):
